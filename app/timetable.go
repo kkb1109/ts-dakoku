@@ -154,7 +154,20 @@ func (ctx *Context) createTimeTableClient() *timeTableClient {
 }
 
 func (client *timeTableClient) doRequest(method string, data io.Reader) ([]byte, error) {
-	req, err := http.NewRequest(method, client.Endpoint, data)
+	
+	var url string
+	if method == http.MethodPost {
+		url = client.Endpoint + "/handleInputTimeTable"
+	} else if method == http.MethodPut {
+		url = client.Endpoint + "/handleSetAttendance"
+	} else {
+		url = client.Endpoint + "/handleGetTimeTable"
+	}
+	
+	req, err := http.NewRequest(method, url, data)
+	
+	fmt.Printf("%v %v %v %v\n", req.Header, req.Method, url, data)
+	
 	if err != nil {
 		return nil, err
 	}
@@ -165,12 +178,17 @@ func (client *timeTableClient) doRequest(method string, data io.Reader) ([]byte,
 	if err != nil {
 		return nil, err
 	}
+	
+	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
+	
+	fmt.Printf("%v %v %v\n",res.StatusCode,res.Request.URL.String(), string(body))
+	
 	return body, err
 }
 
 func (client *timeTableClient) GetTimeTable() (*timeTable, error) {
-	body, err := client.doRequest(http.MethodGet, nil)
+	body, err := client.doRequest("GET", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +201,7 @@ func (client *timeTableClient) UpdateTimeTable(timeTable *timeTable) (bool, erro
 	if err != nil {
 		return false, err
 	}
-	body, err := client.doRequest(http.MethodPost, bytes.NewBuffer(b))
+	body, err := client.doRequest("POST", bytes.NewBuffer(b))
 	fmt.Printf("%v %v %v\n", string(body), err, string(body) == `"OK"`)
 	if err != nil {
 		return false, err
@@ -197,7 +215,7 @@ func (client *timeTableClient) SetAttendance(attendance bool) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	body, err := client.doRequest(http.MethodPut, bytes.NewBuffer(b))
+	body, err := client.doRequest("PUT", bytes.NewBuffer(b))
 	if err != nil {
 		return false, err
 	}
