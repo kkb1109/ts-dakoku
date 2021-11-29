@@ -38,12 +38,12 @@ func (ctx *Context) getActionCallback(data *slack.AttachmentActionCallback) (*sl
 	case actionTypeLeave:
 		{
 			attendance = 0
-			text = "退勤しました :house:"
+			text = "おつかれさまでした！ :house:"
 		}
 	case actionTypeRest:
 		{
 			timeTable.Rest(now)
-			text = "休憩を開始しました :coffee:"
+			text = "休憩開始します！ :coffee:"
 		}
 	case actionTypeUnrest:
 		{
@@ -53,7 +53,7 @@ func (ctx *Context) getActionCallback(data *slack.AttachmentActionCallback) (*sl
 	case actionTypeAttend:
 		{
 			attendance = 1
-			text = "出勤しました :office:"
+			text = "出勤しました！ :office:"
 		}
 	}
 
